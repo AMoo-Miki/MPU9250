@@ -52,7 +52,6 @@ int MPU9250::begin(){
   } else { // using I2C for communication
     // starting the I2C bus
     _i2c->begin();
-    // setting the I2C clock
     _i2c->setClock(_i2cRate);
   }
   // select clock source to gyro
@@ -433,6 +432,20 @@ int MPU9250FIFO::enableFifo(bool accel,bool gyro,bool mag,bool temp) {
   _enFifoTemp = temp;
   _fifoFrameSize = accel*6 + gyro*6 + mag*7 + temp*2;
   return 1;
+}
+
+
+int MPU9250::readSensor(Madgwick & filter) {
+	return readSensor(&filter);
+
+}
+int MPU9250::readSensor(Madgwick * filter) {
+	int retVal = readSensor();
+	if (retVal != 1) {
+		return retVal;
+	}
+	filter->update(_gx, _gy, _gz, _ax, _ay, _az, _hx, _hy, _hz);
+	return retVal;
 }
 
 /* reads the most current data from MPU9250 and stores in buffer */
